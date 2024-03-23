@@ -9,10 +9,6 @@ import regex as re
 import requests
 from bs4 import BeautifulSoup
 
-import wikipedia
-import wikipediaapi
-
-
 # reformats the tuple arrays returned from SQL requests into more manageable outputs
 def formatSQL(tupleArray, alwaysArray=False):
     length = len(tupleArray)
@@ -77,7 +73,7 @@ def getFactors():
 print("Content-type: application/json")
 print("")
 
-conn = sqlite3.connect("D:\\webs\\www.tobybrowne.co.uk\\Googleplex\\api\\SearchEngineIndex.db")
+conn = sqlite3.connect("shared_resources/database/SearchEngineIndex.db")
 cur = conn.cursor()
 
 

@@ -384,7 +384,7 @@ def search(query, weights, userCC):
     return resultsDict
 
 if __name__ == '__main__':
-    testing = 0
+    testing = 1
 
     if testing == 0:
         conn = sqlite3.connect("D:\\webs\\www.tobybrowne.co.uk\\Googleplex\\api\\SearchEngineIndex.db")
@@ -408,10 +408,10 @@ if __name__ == '__main__':
             weights = createWeightDict()
 
     if testing == 1:
-        conn = sqlite3.connect("../../resources/SearchEngineIndex.db")
+        conn = sqlite3.connect("shared_resources/database/SearchEngineIndex.db")
         cur = conn.cursor()
 
-        query = "autosport plus"
+        query = "verstappen"
         autocorrect = 0
         userCC = "GB"
 
