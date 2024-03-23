@@ -1,0 +1,94 @@
+<html>
+
+<head>
+    <script src="https://kit.fontawesome.com/ce869c8071.js" crossorigin="anonymous"></script> <!--links to fontawesome used for the icons-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> <!--downloads jquery from google's api-->
+    <link rel="stylesheet" href="../StyleSheets/stylesheet.css"> <!--links to the stylesheet-->
+    <script src="../Scripts/siteScripts.js"></script> <!--links to the site's javascript-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="http://www.tobybrowne.co.uk/Googleplex/Favicon.ico">
+    <title>Googleplex</title>
+</head> 
+
+<body class="resultsPage" onresize="resize()" > <!-- runs the resize() function when the page is resized -->
+    <div id="fullPageContainer">
+        
+        
+        
+
+        <!--header-->
+        <div id="header">
+            
+            <a href="HomePage.html" id="logo" class="logoFont">GOOGLEPLEX</a>
+            
+            
+            <div id="buttonContainer">
+                <button onclick="changeScrollType()" id="scroll-type" type="button"><i id="scrollIcon" class="fas fa-infinity"></i></button>
+                <button onclick="changeLightDark()" id="light-dark" type="button"><i id="light-darkIcon" class="fas fa-sun"></i></button>      
+                <button onclick="openSettingsPage('Results')" id="search-settings" type="button"><i id="scrollIcon" class="fas fa-sliders-h"></i></button>
+            </div>
+            <div style="clear:both;" id="headerClear"></div>
+            <div id=wrapper>
+                <input type="text" class="searchbar" id="searchbar" name="search">
+                <i class="fas fa-search"></i>
+            </div>
+
+            
+
+            <div style="clear:both"></div>
+        </div>
+
+        <!--container for all results-->
+        <div id="resultsContainer"> 
+
+            <!--loading circle-->
+            <div class="sk-circle">
+            <div class="sk-circle1 sk-child"></div>
+            <div class="sk-circle2 sk-child"></div>
+            <div class="sk-circle3 sk-child"></div>
+            <div class="sk-circle4 sk-child"></div>
+            <div class="sk-circle5 sk-child"></div>
+            <div class="sk-circle6 sk-child"></div>
+            <div class="sk-circle7 sk-child"></div>
+            <div class="sk-circle8 sk-child"></div>
+            <div class="sk-circle9 sk-child"></div>
+            <div class="sk-circle10 sk-child"></div>
+            <div class="sk-circle11 sk-child"></div>
+            <div class="sk-circle12 sk-child"></div>
+            </div>
+
+
+            <div id="suggestionBar">
+                <p class="suggestionText">Showing Results For <span id="correctQueryLabel"></span></p>
+                <p class="suggestionText">Show Results For <a id="suggestionLink" href="#" onclick="originalSearch()"></a> Instead?</p>
+            </div>           
+
+            
+
+
+            <!--widget container-->
+            <div id="widgetContainer">
+            </div>
+            
+            <!-- list of sites -->
+            <div id="resultsList">
+                <!--no results message-->
+                <p id="noResultsMessage">No Results Found For <span id="noResultsQuery">Helllo</span> </p>
+            </div>
+        </div>
+    
+    
+
+        <div id="pageControlsContainer"> <!-- paged settings preloaded -->
+            <div id="pageControls">
+                <button class="controlButton" onclick="backPage()" id="backButton" type="button"><i id="scrollIcon" class="fas fa-arrow-left"></i></button>
+                <h1 id="pageNum">1</h1> 
+                <button class="controlButton" onclick="forwardPage()"  id="forwardButton" type="button"><i id="scrollIcon" class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+
+            
+    
+    </div>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<html>
+
+    <head>
+        <title>Googleplex</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> <!--downloads jquery from google's api-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="http://www.tobybrowne.co.uk/Googleplex/Favicon.ico">
+        <script src="https://kit.fontawesome.com/ce869c8071.js" crossorigin="anonymous"></script> <!--links to fontawesome used for the icons-->
+        <link rel="stylesheet" href="../StyleSheets/stylesheet.css"> <!--links to the stylesheet-->
+        <script src="../Scripts/siteScripts.js"></script> <!--links to the site's javascript-->
+
+    </head> 
+
+
+
+    <body class="homePage">
+            <div id="fullPageContainer">
+                <!--header-->
+                <div id="header">
+                    <!--header buttons-->
+                    <div id="buttonContainer">
+                        <button onclick="changeScrollType()" id="scroll-type" type="button"><i id="scrollIcon" class="fas fa-infinity"></i></button>
+                        <button onclick="changeLightDark()" id="light-dark" type="button"><i id="light-darkIcon" class="fas fa-sun"></i></button>      
+                        <button onclick="openSettingsPage('Home')" id="search-settings" type="button"><i id="scrollIcon" class="fas fa-sliders-h"></i></button>
+                    </div>
+                    <div style="clear:both"></div>
+                </div>
+
+                <div id="container">
+                    <div id="main">
+                        <!--main logo-->
+                        <h1 class="logoFont" id="title">GOOGLEPLEX</h1>
+                        
+                        <!--search bar wrapper-->
+                        <div id=wrapper>
+                            <input class="searchbar" type="text">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                </div>
+          
+            </div>
+                
+    </body>
+</html>
+

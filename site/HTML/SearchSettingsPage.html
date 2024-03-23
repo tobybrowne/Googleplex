@@ -1,0 +1,36 @@
+<html>
+
+<head>
+    <script src="https://kit.fontawesome.com/ce869c8071.js" crossorigin="anonymous"></script> <!--links to fontawesome used for the icons-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> <!--downloads jquery from google's api-->
+    <link rel="stylesheet" href="../StyleSheets/stylesheet.css"> <!--links to the stylesheet-->
+    <script src="../Scripts/siteScripts.js"></script> <!--links to the site's javascript-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="http://www.tobybrowne.co.uk/Googleplex/Favicon.ico">
+    <title>Search Settings</title>
+</head> 
+
+<body class="settingsPage">
+    <div id="fullPageContainer">
+            <!--header-->
+            <div id="header">
+                <button onclick="goBack()" id="backButton" type="button"><i class="fas fa-arrow-left"></i></button> <!--back button-->
+                <h1 id="searchSettingsTitle">Search Settings</h1><!--title-->
+                <button id="balanceButton" onclick="balanceWeights()" type="button"><i id="balanceIcon" class="fas fa-balance-scale"></i></button><!--balance button-->
+
+            </div>
+
+            <!--container for main page content-->
+            <div id="container">
+
+            </div>
+
+            <!--container for accept and reject buttons-->
+                <div id="changesButtonContainer">
+                    <button class="changesButton" onclick="loadPrevWeights()" id="cancelButton" type="button"><i class="fas fa-times"></i></button>
+                    <button class="changesButton" onclick="acceptChanges()" id="acceptButton" type="button"><i class="fas fa-check"></i></button>
+                </div>
+        </div>   
+    </div>
+</body>
+</html>
