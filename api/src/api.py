@@ -377,7 +377,6 @@ def search(query, weights, userCC):
 # POST request at URL/makeSearch
 @app.route("/makeSearch", methods=["POST"])
 def makeSearch():
-    
     body = request.get_json()
 
     global conn
@@ -397,10 +396,12 @@ def makeSearch():
     else:
         correctedQuery=query
 
-    try:
-         widgetDict = getWidget(correctedQuery)
-    except:
-         widgetDict=""
+    # widgets add almost 2 secs of delay
+    # try:
+    #      widgetDict = getWidget(correctedQuery)
+    # except:
+    #      widgetDict=""
+    widgetDict=""
 
     try: 
         resultsDict = search(correctedQuery, weights, userCC)
