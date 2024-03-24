@@ -13,9 +13,6 @@
 <body class="resultsPage" onresize="resize()" > <!-- runs the resize() function when the page is resized -->
     <div id="fullPageContainer">
         
-        
-        
-
         <!--header-->
         <div id="header">
             
@@ -34,12 +31,14 @@
             </div>
 
             
+            
 
             <div style="clear:both"></div>
         </div>
 
         <!--container for all results-->
         <div id="resultsContainer"> 
+            
 
             <!--loading circle-->
             <div class="sk-circle">
@@ -59,6 +58,7 @@
 
 
             <div id="suggestionBar">
+                
                 <p class="suggestionText">Showing Results For <span id="correctQueryLabel"></span></p>
                 <p class="suggestionText">Show Results For <a id="suggestionLink" href="#" onclick="originalSearch()"></a> Instead?</p>
             </div>           
@@ -72,6 +72,7 @@
             
             <!-- list of sites -->
             <div id="resultsList">
+                <p id="timingMessage"><span id="resultNum">1,423</span> results in <span id="searchTime">1.37</span> seconds</p>
                 <!--no results message-->
                 <p id="noResultsMessage">No Results Found For <span id="noResultsQuery">Helllo</span> </p>
             </div>

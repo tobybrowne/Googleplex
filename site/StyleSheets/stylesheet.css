@@ -213,7 +213,7 @@ html, body{
 
     #header{
         width:100%;
-        padding-bottom:20px;
+        /* padding-bottom:20px; */
     }
         
         #buttonContainer{
@@ -515,7 +515,7 @@ html, body{
         padding-bottom: 10vh;
     }
     .settingsPage #header{
-        padding-bottom: 2vw;
+        /* padding-bottom: 2vw; */
     }
     .settingsPage #sliderWrapper{
         margin-left:4%;
@@ -620,6 +620,16 @@ html, body{
     width:45%;
     float: left;
 }
+
+.resultsPage #timingMessage{
+    margin-left:185px;
+    margin-bottom: 35px;
+    font-size: 16px;
+    display: none;
+    width:45%;
+    float: left;
+}
+
 .resultsPage #noResultsQuery{
     font-weight:bold;
 }
@@ -648,7 +658,7 @@ html, body{
 .resultsPage #resultsList{
     width: 70%;
     float:right;
-    padding-top: 10px;
+    /* padding-top: 10px; */
 }
 
 
@@ -937,8 +947,10 @@ html, body{
         font-size: 1.05vw;
     }
 
-
-
+    .resultsPage #timingMessage{
+        margin-left:12.5vw;
+        font-size: 1.05vw;
+    }
 
     .resultsPage button{
         height: 4.5vw;
@@ -1123,6 +1135,9 @@ html, body{
     .widgetPage #noResultsMessage{
         margin-left:50px;
     }
+    .widgetPage #timingMessage{
+        margin-left:50px;
+    }
     .widgetPage .result{
         margin-left:50px;
         width:85%;
@@ -1158,6 +1173,9 @@ html, body{
         margin-left:50px;
     }
     .noWidgetPage #noResultsMessage{
+        margin-left:50px;
+    }
+    .noWidgetPage #timingMessage{
         margin-left:50px;
     }
 
@@ -1210,10 +1228,13 @@ html, body{
         margin-right: auto;
     }   
     .resultsPage #header{
-        padding-bottom:17px;
+        /* padding-bottom:17px; */
     }
 
     .resultsPage #noResultsMessage{
+        width:80%;
+    }
+    .resultsPage #timingMessage{
         width:80%;
     }
 
@@ -1268,6 +1289,9 @@ html, body{
     .resultsPage #noResultsMessage{
         margin-left:5%;
     }
+    .resultsPage #timingMessage{
+        margin-left:5%;
+    }
 }
 
 @media only screen and (max-width: 500px) {
@@ -1298,6 +1322,9 @@ html, body{
         font-size: 14px;
     }
 
+    .resultsPage #timingMessage{
+        font-size: 14px;
+    }
 
     .resultsPage .pointer {
         left: 219px;

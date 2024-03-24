@@ -374,6 +374,8 @@ function sendSearch(userCC){
     var url='http://127.0.0.1:5000/makeSearch';
     console.log(url);
 
+    searchStartTime = Date.now();
+
     $.ajax({
         type: "POST",
         url: url,
@@ -423,6 +425,10 @@ function sendSearch(userCC){
 
             $(".sk-circle").hide();
             if(searchResults["list"]!=""){
+                searchEndTime = Date.now();
+                $("#searchTime").text((searchEndTime - searchStartTime)/1000);
+                $("#resultNum").text(searchResults["list"].length);
+                $("#timingMessage").show();
                 loadResultsPage(1, scrollButtonState);
             }
             else{

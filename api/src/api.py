@@ -8,6 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 import numpy as np
 import math
+import time
 
 app = Flask(__name__)
 CORS(app)
@@ -380,6 +381,7 @@ def search(query, weights, userCC):
 # POST request at URL/makeSearch
 @app.route("/makeSearch", methods=["POST"])
 def makeSearch():
+    startTime = time.time()
     body = request.get_json()
 
     global conn
@@ -391,7 +393,7 @@ def makeSearch():
     userCC = body["location"]
     weights = createWeightDict() # get from req eventually
     query = body["query"]
-    autocorrect = 0 # get from req eventually
+    autocorrect = body["autocorrect"] # get from req eventually
 
 
     if autocorrect == "1":
@@ -422,6 +424,8 @@ def makeSearch():
     }
 
     outputJSON = json.dumps(outputDict)
+    endTime = time.time()
+    print("process time: "+str(endTime-startTime))
 
     return outputJSON
 
