@@ -59,6 +59,30 @@ def formatSQL(tupleArray, alwaysArray=False):
  
     # returns formatted data
     return output
+
+def getWordIDs(_query):
+    # sets the query to lower case
+    _query = _query.lower() 
+
+    # removes punctuation from the query
+    formattedQuery = ""
+    for character in _query:
+            if character.isalnum()==True or character == " ":
+                formattedQuery+=character
+
+    # splits the query into an array of words, removing empty elements caused by extra spaces
+    splitQuery = formattedQuery.split(" ")
+    splitQuery[:] = [x for x in splitQuery if x!=""]
+
+    # matches each word with it's corresponding wordID (if it has one) 
+    wordIDs = []
+    for word in splitQuery:
+        wordID = formatSQL(cur.execute("select wordID from wordTbl where word=?", (word,)).fetchall())
+        if wordID != None:
+            wordIDs.append(wordID)
+
+    # returns an array of wordIDs
+    return wordIDs
  
 def getWidget(query):
     encodedQuery = urllib.parse.quote_plus(query)
@@ -86,9 +110,29 @@ def getWidget(query):
     widgetJSON = {"title": title, "description":summary, "url": wikiURL, "image": imageLink}
 
     return widgetJSON
-        
+
+# process only happens on startup (thank god)
+with open("api/resources/words.txt") as word_file:
+    english_words = set(word.strip().lower() for word in word_file)
+
+def isWord(word):
+    return word.lower() in english_words
+
+
 def autocorrectQuery(query):
     splitQuery = query.split(" ")
+
+    # preliminary test because the bing API is SLOW!
+    isIndexed = getWordIDs(query) == len(splitQuery)
+    allValid = True
+    for word in splitQuery:
+        # maybe add an IDF limit to indexed words to be confident they aren't website typos (perhaps keep track of word frequency)
+        allValid = isWord(word) or word.isnumeric() or isIndexed # just need one of these to hit
+    if allValid:
+        return query
+
+    # only correct if at least one word is wrong
+    print("autocorrect check")
     api_key = "723c6db20d084447bfc279aa763fc0f9"
     endpoint = "https://api.bing.microsoft.com/v7.0/SpellCheck"
     params = {
@@ -123,30 +167,6 @@ def createWeightDict():
         weightDict[factorName] = defaultWeight
 
     return weightDict
-
-def getWordIDs(_query):
-    # sets the query to lower case
-    _query = _query.lower() 
-
-    # removes punctuation from the query
-    formattedQuery = ""
-    for character in _query:
-            if character.isalnum()==True or character == " ":
-                formattedQuery+=character
-
-    # splits the query into an array of words, removing empty elements caused by extra spaces
-    splitQuery = formattedQuery.split(" ")
-    splitQuery[:] = [x for x in splitQuery if x!=""]
-
-    # matches each word with it's corresponding wordID (if it has one) 
-    wordIDs = []
-    for word in splitQuery:
-        wordID = formatSQL(cur.execute("select wordID from wordTbl where word=?", (word,)).fetchall())
-        if wordID != None:
-            wordIDs.append(wordID)
-
-    # returns an array of wordIDs
-    return wordIDs
 
 def getWeights(_weights):
     weightsArray = []
@@ -395,11 +415,13 @@ def makeSearch():
     query = body["query"]
     autocorrect = body["autocorrect"] # get from req eventually
 
-
+    start = time.time()
     if autocorrect == "1":
         correctedQuery = autocorrectQuery(query)
     else:
         correctedQuery=query
+    end = time.time()
+    print(end - start)
 
     # widgets add almost 2 secs of delay
     # try:
