@@ -371,13 +371,22 @@ function sendSearch(userCC){
     console.log(otherAttributes);
     var queryStringJSON = $.extend(otherAttributes, weights);
     var queryString = new URLSearchParams(queryStringJSON).toString();
-    var url='http://www.tobybrowne.co.uk/Googleplex/API/makeSearch.py/?'+queryString;
+    var url='http://127.0.0.1:5000/makeSearch';
     console.log(url);
 
-
-    $.ajax(url,
-    {
-        dataType: 'json', // type of response data
+    $.ajax({
+        type: "POST",
+        url: url,
+        headers: {
+            'Content-type':'application/json', 
+            'Accept':'application/json'
+        },
+        data: JSON.stringify({
+            "query": query,
+            "location": userCC,
+            "autocorrect": autocorrect,
+            "weights": weights
+        }),
         success: function (data,status,xhr) {   // success callback function
             searchResults = data;
             console.log(searchResults)
@@ -421,8 +430,9 @@ function sendSearch(userCC){
                 $("#noResultsQuery").text(query);
                 $("#pageControlsContainer").hide();
             }
-        }
-    });
+        },
+        dataType: "json"
+      });
     localStorage.setItem("autocorrect", 1);
 }
 
@@ -455,7 +465,7 @@ $(document).ready(function(){ // Runs when the page starts...
     if (page=="settingsPage"){
 
 
-        $.ajax('http://www.tobybrowne.co.uk/Googleplex/API/getFactors.py', 
+        $.ajax('http://127.0.0.1:5000/getFactor', 
         {
             dataType: 'json', // type of response data
             success: function (data,status,xhr) {   // success callback function
