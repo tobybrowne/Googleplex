@@ -218,26 +218,29 @@ def getRelRankings(_queryIDs, _relevantPages):
     relevancyRatings = []
     # gets the number of text types in use.
     textTypeIDs = formatSQL(cur.execute("select factorID from factorTbl where factorType=1").fetchall(), True)
+    
+    # NEEDS to be 0 initialised here, because a pageID that doesn't show under a specific textType must still have an entry
+    for i in range(textTypeIDs[-1]):
+        relevancyRatings.append({})
+        for j in _relevantPages:
+            relevancyRatings[i][j] = 0
+
     # pairs pageIDs and total TF-IDF rating for each text type.
-    for i in textTypeIDs:
-        rating = {}
-        for pageID in _relevantPages:
-            rating[pageID]=0
-        for wordID in _queryIDs:
-            sqlQuery = 'select pageID, TFIDF from indexTbl where pageID in (%s) and wordID=? and textTypeID=?' % ",".join(map(str, _relevantPages))
-            allTFIDFs = formatSQL(cur.execute(sqlQuery, (wordID, i)).fetchall(), True)
-            for pageID, tfIDF in allTFIDFs:
-                # increments pageID value in rating with tf-idf
-                if pageID in rating:
-                    rating[pageID] += tfIDF
+    sqlQuery = 'select pageID, TFIDF, textTypeID from indexTbl where pageID in (%s) and wordID in (%s) and textTypeID in (%s)' % (",".join(map(str, _relevantPages)), ",".join(map(str, _queryIDs)), ",".join(map(str, textTypeIDs)))
 
-        relevancyRatings.append(rating)
+    allTFIDFs = cur.execute(sqlQuery).fetchall()
+    
+    # increments tfIDFs across all words of query (keeps text types separate)
+    for pageID, tfIDF, textTypeID in allTFIDFs:
+        rating = relevancyRatings[textTypeID - 1]
+        if pageID in rating:
+            rating[pageID] += tfIDF
 
- 
-    # normalises the TF-IDF ratings
+    # normalises the TF-IDF ratings (0.0 seconds)
     relevancyRankings = []
     for ratings in relevancyRatings:
         relevancyRankings.append(normaliseRatings(ratings))
+
     # returns normalised relevancy rankings
     return relevancyRankings
 
