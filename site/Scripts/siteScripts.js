@@ -389,7 +389,7 @@ function sendSearch(userCC){
             "autocorrect": autocorrect,
             "weights": weights
         }),
-        success: function (data,status,xhr) {   // success callback function
+        success: function (data, status, xhr) {   // success callback function
             searchResults = data;
             console.log(searchResults)
             lastPage = Math.ceil(searchResults["list"].length/pageSize);
@@ -437,6 +437,10 @@ function sendSearch(userCC){
                 $("#pageControlsContainer").hide();
             }
         },
+        error: function(data, status, xhr) {
+            $(".sk-circle").hide();
+            $("#sayTheMagicWord").css("display", "block");
+        },
         dataType: "json"
       });
     localStorage.setItem("autocorrect", 1);
@@ -445,6 +449,7 @@ function sendSearch(userCC){
 
 
 $(document).ready(function(){ // Runs when the page starts...
+
 
     var locationPerms = localStorage.getItem("locationPerms");
     if(locationPerms == undefined){

@@ -630,6 +630,12 @@ html, body{
     float: left;
 }
 
+.resultsPage #saytheMagicWord{
+    display: none;
+    margin: 10vh auto;
+    position: relative;
+}
+
 .resultsPage #noResultsQuery{
     font-weight:bold;
 }
