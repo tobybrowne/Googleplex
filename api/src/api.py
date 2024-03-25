@@ -123,7 +123,7 @@ def autocorrectQuery(query):
     splitQuery = query.split(" ")
 
     # preliminary test because the bing API is SLOW!
-    isIndexed = getWordIDs(query) == len(splitQuery)
+    isIndexed = len(getWordIDs(query)) == len(splitQuery)
     allValid = True
     for word in splitQuery:
         # maybe add an IDF limit to indexed words to be confident they aren't website typos (perhaps keep track of word frequency)
@@ -377,19 +377,30 @@ def search(query, weights, userCC):
     if len(queryIDs)==0:
         return ""
 
+    start = time.time()
     weightVals = getWeights(weights)
+    end = time.time()
+    print("get weights: "+str(end-start)+" seconds")
 
-
+    start = time.time()
     relevantPages = selectRelPages(queryIDs)
-
     if len(relevantPages)==0:
         return ""
+    end = time.time()
+    print("get relevant pages: "+str(end-start)+" seconds")
+    
+    start = time.time()
     relevancyRankings = getRelRankings(queryIDs, relevantPages)
+    end = time.time()
+    print("relevancy rankings: "+str(end-start)+" seconds")
  
 
     locationRankings = getLocationRankings(relevantPages, userCC)
 
+    start = time.time()
     pageIDscores = calcFinalPositions(weightVals, relevantPages, relevancyRankings, locationRankings)
+    end = time.time()
+    print("calculate final positions: "+str(end-start)+" seconds")
 
 
     resultsDict = createResultsDict(pageIDscores, weights)
@@ -415,13 +426,10 @@ def makeSearch():
     query = body["query"]
     autocorrect = body["autocorrect"] # get from req eventually
 
-    start = time.time()
     if autocorrect == "1":
         correctedQuery = autocorrectQuery(query)
     else:
         correctedQuery=query
-    end = time.time()
-    print(end - start)
 
     # widgets add almost 2 secs of delay
     # try:
