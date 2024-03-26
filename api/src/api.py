@@ -192,16 +192,15 @@ def selectRelPages(_queryIDs):
     relevantPages = []
     KWappearances = {}
 
-    for wordID in _queryIDs:
-        # gets all the pages in which the word appears, removing repeats across the text types.
-        kwPages = formatSQL(cur.execute("SELECT DISTINCT i.pageID FROM indexTbl i INNER JOIN pageTbl p ON p.pageID = i.pageID WHERE p.valid = 1 AND i.wordID = {}".format(wordID)).fetchall(), True)
-        #updates KWappearances with the pageID and how many of the query's keywords have appeared.
-        for pageID in kwPages:
-            if pageID in KWappearances:
-                KWappearances[pageID]+=1
-            else:
-                KWappearances[pageID]=1
+    # only looks at the body text
+    pageWordMatch = formatSQL(cur.execute("SELECT i.pageID, i.wordID FROM indexTbl i INNER JOIN pageTbl p ON p.pageID = i.pageID WHERE p.valid = 1 AND i.wordID in ({}) AND i.textTypeID = 1".format(",".join(map(str, _queryIDs)))).fetchall(), True)
+    for pageID, wordID in pageWordMatch:
+        if pageID in KWappearances:
+            KWappearances[pageID]+=1
+        else:
+            KWappearances[pageID]=1
 
+    # faster to have a separate loop than constantly checkin
     # if the number of keyword appearances matches the number of keywords the site is deemed as relevant
     for pageID in KWappearances:
         if KWappearances[pageID] == len(_queryIDs):
@@ -257,7 +256,6 @@ def getRelRankings(_queryIDs, _relevantPages):
 
     # pairs pageIDs and total TF-IDF rating for each text type.
     sqlQuery = 'select pageID, TFIDF, textTypeID from indexTbl where pageID in (%s) and wordID in (%s) and textTypeID in (%s)' % (",".join(map(str, _relevantPages)), ",".join(map(str, _queryIDs)), ",".join(map(str, textTypeIDs)))
-
     allTFIDFs = cur.execute(sqlQuery).fetchall()
     
     # increments tfIDFs across all words of query (keeps text types separate)
@@ -277,8 +275,8 @@ def getRelRankings(_queryIDs, _relevantPages):
 def getLocationRankings(_relevantPages, _userCC):
     # assigns each page a 1 or a 0 location rating
     locationRatings = {}
-    for pageID in _relevantPages:
-        pageCC = formatSQL(cur.execute("select pageCC from pageTbl where pageID=?", (pageID,)).fetchall())
+    pageCCs = formatSQL(cur.execute("select pageID, pageCC from pageTbl where pageID in ({})". format(",".join(map(str, _relevantPages)))).fetchall())
+    for pageID, pageCC in pageCCs:
         # if in the same country as user assign a 1 rating
         if pageCC == _userCC:
             locationRatings[pageID]=1
@@ -419,8 +417,10 @@ def search(query, weights, userCC):
     end = time.time()
     print("relevancy rankings: "+str(end-start)+" seconds")
  
-
+    start = time.time()
     locationRankings = getLocationRankings(relevantPages, userCC)
+    end = time.time()
+    print("location ranking: "+str(end-start)+" seconds")
 
     start = time.time()
     pageIDscores = calcFinalPositions(weightVals, relevantPages, relevancyRankings, locationRankings)
