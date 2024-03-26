@@ -56,9 +56,21 @@ def formatSQL(tupleArray, alwaysArray=False):
             else:
                 output=tupleArray[0][0]
  
- 
     # returns formatted data
     return output
+
+# reformats the tuple arrays returned from SQL requests into more manageable outputs
+def formatSQLdict(tupleArray, alwaysArray=False):
+    length = len(tupleArray)
+    dict = {}
+ 
+    # when the tuple array has multiple elements formats the tuple array as a 1D array or a 2D array depending on how many elements are in each tuple
+    if length > 1:
+        output = []
+        for tuple in tupleArray:
+            dict[tuple[0]] = tuple[1]
+   
+    return dict
 
 def getWordIDs(_query):
     # sets the query to lower case
@@ -179,11 +191,10 @@ def getWeights(_weights):
 def selectRelPages(_queryIDs):
     relevantPages = []
     KWappearances = {}
- 
+
     for wordID in _queryIDs:
         # gets all the pages in which the word appears, removing repeats across the text types.
-        kwPages = formatSQL(cur.execute("SELECT DISTINCT pageID FROM indexTbl WHERE wordID = ?", (wordID,)).fetchall(), True)
-
+        kwPages = formatSQL(cur.execute("SELECT DISTINCT i.pageID FROM indexTbl i INNER JOIN pageTbl p ON p.pageID = i.pageID WHERE p.valid = 1 AND i.wordID = {}".format(wordID)).fetchall(), True)
         #updates KWappearances with the pageID and how many of the query's keywords have appeared.
         for pageID in kwPages:
             if pageID in KWappearances:
@@ -194,9 +205,7 @@ def selectRelPages(_queryIDs):
     # if the number of keyword appearances matches the number of keywords the site is deemed as relevant
     for pageID in KWappearances:
         if KWappearances[pageID] == len(_queryIDs):
-            validPage = formatSQL(cur.execute("select valid from pageTbl where pageID=?", (pageID,)).fetchall())
-            if validPage == 1:
-                relevantPages.append(pageID)
+            relevantPages.append(pageID)
 
     # returns array of pageIDs for relevant pages
     return relevantPages
@@ -298,12 +307,34 @@ def calcFinalPositions(_weightVals, _relevantPages, _relevancyRankings, _locatio
     # collects orders for factors
     orders = formatSQL(cur.execute("select factorOrder from factorTbl where factorOrder is not null").fetchall())
 
+    # get all siteIDs in bulk
+    # assumes that siteIDs are collected in same order than pageIDs are provided
+    query = "select pageID, siteID from pageTbl where pageID in (%s)" % ','.join(str(x) for x in _relevantPages)
+    pageSiteMatch = formatSQLdict(cur.execute(query).fetchall())
+    siteIDs = pageSiteMatch.values()
 
+    # get all page factor ratings in bulk
+    query = "select normPageData from pageDataTbl where pageID in ({}) and pageFactorID in ({})".format(','.join(str(x) for x in _relevantPages), ",".join(map(str, pageFactors)))
+    rawPageRatings = formatSQL(cur.execute(query).fetchall())
+
+    query = "select siteID, normSiteData from siteDataTbl where siteID in ({}) and siteFactorID in ({})".format(','.join(str(x) for x in siteIDs), ",".join(map(str, siteFactors)))
+    siteDataReturn = formatSQL(cur.execute(query).fetchall())
+
+    # relies on data being collected in the correct order
+    rawSiteRatings = {}
+    for siteID, normSiteData in siteDataReturn:
+        if siteID in rawSiteRatings:
+            rawSiteRatings[siteID].append(normSiteData)
+        else:
+            rawSiteRatings[siteID] = [normSiteData]
+    
     # multiplies every weight, order and rating for every factor on every page and sums the resultant number to develop an overall rating for every page.
+    j = 0
     for pageID in _relevantPages:
         pageIDscores[pageID] = 0
-        siteID = formatSQL(cur.execute("select siteID from pageTbl where pageID=?",(pageID,)).fetchall())
+        siteID = pageSiteMatch[pageID]
         scores = []
+
         i=0
         while i < relevancyFactors:
             rawRating = (_relevancyRankings[i])[pageID]
@@ -311,32 +342,26 @@ def calcFinalPositions(_weightVals, _relevantPages, _relevancyRankings, _locatio
             pageIDscores[pageID] += rawRating * _weightVals[i]
             i+=1
 
- 
         rawRating = _locationRankings[pageID]
         scores.append(rawRating)
         pageIDscores[pageID] += rawRating * _weightVals[relevancyFactors]
 
-
-
-        query = "select normPageData from pageDataTbl where pageID=? and pageFactorID in (%s)" % ",".join(map(str, pageFactors))
-        rawRatings = formatSQL(cur.execute(query, (pageID,)).fetchall())
         i=0
         while i < len(pageFactors):
-            rawRating = rawRatings[i]
-            scores.append(rawRating*orders[i])    
-            pageIDscores[pageID] += rawRating * _weightVals[i+relevancyFactors+1]*orders[i]
+            rawPageRating = rawPageRatings[len(pageFactors)*j + i]
+            scores.append(rawPageRating*orders[i])    
+            pageIDscores[pageID] += rawPageRating * _weightVals[i+relevancyFactors+1]*orders[i]
             i+=1
 
-
-        query = "select normSiteData from siteDataTbl where siteID=? and siteFactorID in (%s)" % ",".join(map(str, siteFactors))
-        rawRatings = formatSQL(cur.execute(query, (siteID,)).fetchall())
         i=0
         while i < len(siteFactors):
-            rawRating = rawRatings[i]
-            scores.append(rawRating*orders[i+len(pageFactors)])
-            pageIDscores[pageID] += rawRating*_weightVals[i+len(pageFactors)+relevancyFactors+1]*orders[i+len(pageFactors)]
+            rawSiteRating = rawSiteRatings[siteID][i]
+            scores.append(rawSiteRating*orders[i+len(pageFactors)])
+            pageIDscores[pageID] += rawSiteRating*_weightVals[i+len(pageFactors)+relevancyFactors+1]*orders[i+len(pageFactors)]
             i+=1
+
         pageScores[pageID] = scores
+        j+=1
 
  
     # sorts the search results in descending order of the rating.
@@ -405,21 +430,17 @@ def search(query, weights, userCC):
 
     resultsDict = createResultsDict(pageIDscores, weights)
 
-    conn.close()
-
     return resultsDict
+
+# connect to database on startup
+conn = sqlite3.connect("shared_resources/database/SearchEngineIndex.db", check_same_thread=False)
+cur = conn.cursor()
 
 # POST request at URL/makeSearch
 @app.route("/makeSearch", methods=["POST"])
 def makeSearch():
     startTime = time.time()
     body = request.get_json()
-
-    global conn
-    global cur
-
-    conn = sqlite3.connect("shared_resources/database/SearchEngineIndex.db")
-    cur = conn.cursor()
 
     userCC = body["location"]
     weights = createWeightDict() # get from req eventually
@@ -438,10 +459,12 @@ def makeSearch():
     #      widgetDict=""
     widgetDict=""
 
-    try: 
-        resultsDict = search(correctedQuery, weights, userCC)
-    except:
-        resultsDict = ""
+    # try: 
+    #     resultsDict = search(correctedQuery, weights, userCC)
+    # except:
+    #     resultsDict = ""
+
+    resultsDict = search(correctedQuery, weights, userCC)
 
     if correctedQuery==query:
         correctedQuery=""
